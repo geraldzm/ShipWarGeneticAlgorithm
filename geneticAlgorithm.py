@@ -6,9 +6,9 @@ class GA:
 
     def __init__(self, ship, enemy):
 
-        self.enemy_position = 14
+        self.enemy_position = 0
         self.fire_position = 0
-        self.current_position = 2
+        self.current_position = 0
 
         self.accepted = 0.6 # amount accepted
 
@@ -35,10 +35,9 @@ class GA:
 
         fit = sorted(fit, key=lambda tup: tup[1])      
 
-        return [i[0] for i in fit[:int(self.accepted*len(fit))]] #[a_tuple[0] for a_tuple in tuple_list]
+        return [i[0] for i in fit[:int(self.accepted*len(fit))]] # return the first % accepted 
 
     def orgy(self, population):
-        #print('')
 
         children = []
 
@@ -49,36 +48,30 @@ class GA:
             child = father.sex(mother)
             
             children.append(child)
-          #  print('father:', father, ' |\tmother:', mother, ' |\tchild:', child)
 
-            # 0001 0110
         return children
 
     def create_generations(self):
 
-        #spartan_babies = [Chromosome(b'\x8F'), Chromosome(b'\xF5'), Chromosome(b'\x19'), Chromosome(b'\x76'),Chromosome(b'\x48')]
-
         spartan_babies = []
 
+        #random initial population
         for i in range(self.population_size):
             ran = random.randrange(1, 254)
             spartan_babies.append(Chromosome(bytes([ran])))
         
+        
         for i in range(self._n_generations):
 
-            spartan_babies = self.fitness(spartan_babies)
-            
-            #print("\nGen",i)
-            #for bb in spartan_babies:
-                #print(bb)
-            
-            spartan_babies = self.orgy(spartan_babies)
+            spartan_babies = self.fitness(spartan_babies) # save the fit ones, kill the others (this is sparta?)        
+            spartan_babies = self.orgy(spartan_babies) # multiply
 
         return spartan_babies
 
     def take_decition(self):
-        spartan_babies = self.create_generations()
+        spartan_babies = self.create_generations() # create and get the elements of the last generation
 
+        # getting the most common genotype
         count = {}
 
         for i in spartan_babies:
@@ -95,28 +88,29 @@ class GA:
                 max = count[i]
                 the_one = i
 
-          #  print(i, count[i]) 
-
-
-      #  print('the one:', the_one, '\tGen:', self._n_generations) #sellected
-
+        # return the most common genotype
         return the_one
 
+    # This method will be executed each frame
     def tick(self):
         
         self.current_position = int(self._ship._hit_box.x/40)
         self.enemy_position = int(self._enemy._hit_box.x/40)
 
-        selected = self.take_decition()
+        # if not bullet then fp = 0, if bullet then fp = bullet position on the x axis
+        self._fire_position = 0 if len(self._enemy._bullets) == 0 else self._enemy._bullets[0]._hit_box.x
+
+        selected = self.take_decition() # run N generations and get the comon genotype
         
-        # mapping:
-        if selected >= 200:
-            print("fire")
-            self._ship.fier()
-        else:
-            col =  selected/10
+        if selected >= 200: # fier bullet
             
-            self._ship._vel_x = col*40 - self._ship._hit_box.x
+            if len(self._ship._bullets) == 0: # one bullet at the time
+                self._ship.fier()
+
+        else: # move to a column
+            col =  selected/10 # selected is a value > 0 and < 200
+            
+            self._ship._vel_x = col*40 - self._ship._hit_box.x # col*40 becouse there is 800px (width), each 40px represents one of the 20 columns
 
             n = 1
 
@@ -124,10 +118,7 @@ class GA:
                 n = -1
             
             if self._ship._vel_x != 0:
-                self._ship._vel_x = n - (10/self._ship._vel_x) #10 max vel
-
-          #  print("move to column", col, 'vel:',self._ship._vel_x)
-
+                self._ship._vel_x = n - (10/self._ship._vel_x)  # 10 is the max velocity
 
     def render(self, screen):
         pass

@@ -17,6 +17,9 @@ class Game:
         ship0 = Ship(380, 100, True)
         ship1 = Ship(380, 500)
 
+        ship0._enemy_ship = ship1
+        ship1._enemy_ship = ship0
+
         ship0_ga = GA(ship0, ship1)
         ship1_ga = GA(ship1, ship0)
 

@@ -31,24 +31,3 @@ class Chromosome:
 
     def __str__(self):
         return "byte: " + str(self._byte) + "\tDecimal: " + str(self.get_int())
-
-
-import random
-
-for i in range(100000):
-
-        ran = random.randrange(1, 254)
-
-        if ran == 0:
-            print("ran = 0")
-            break 
-
-        b = bytes([ran])
-        if b == b'\x00':
-            print('b == 0', ran)
-            break
-
-        c = Chromosome(b)
-        1 / c.get_int()
-        if c.get_int() == 0:
-            print('c = 0',c,  b, "ran=", ran)

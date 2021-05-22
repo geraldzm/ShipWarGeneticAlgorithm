@@ -29,3 +29,6 @@ class GameObject:
     def tick(self):
         self._hit_box.x += self._vel_x
         self._hit_box.y += self._vel_y
+
+    def collides(self, other_Game_object):
+        return other_Game_object._hit_box.colliderect(self._hit_box)
